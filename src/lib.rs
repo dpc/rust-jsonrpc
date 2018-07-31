@@ -36,8 +36,29 @@ extern crate serde;
 extern crate serde_derive;
 extern crate strason;
 
+#[cfg(feature = "unstable")]
+extern crate reqwest;
+
 pub mod client;
 pub mod error;
+
+#[cfg(feature = "unstable")]
+mod reqwest_client;
+
+/// A set of unstable functionality.
+///
+/// This module is only available when the `unstable` [feature][1] is enabled.
+/// There is no backwards compatibility guarantee for any of the types within.
+///
+/// [1]: http://doc.crates.io/specifying-dependencies.html#choosing-features
+#[cfg(feature = "unstable")]
+pub mod unstable {
+    /// This is the implementation of the `Client` with reqwest instead of
+    /// using hyper.
+    pub mod client {
+        pub use reqwest_client::Client;
+    }
+}
 
 use strason::Json;
 // Re-export error type

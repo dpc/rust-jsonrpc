@@ -20,6 +20,9 @@
 use std::{error, fmt};
 
 use hyper;
+#[cfg(feature = "unstable")]
+use reqwest;
+
 use strason::{self, Json};
 
 use Response;
@@ -31,6 +34,8 @@ pub enum Error {
     Json(strason::Error),
     /// Client error
     Hyper(hyper::error::Error),
+    #[cfg(feature = "unstable")]
+    Reqwest(reqwest::Error),
     /// Error response
     Rpc(RpcError),
     /// Response has neither error nor result
@@ -49,6 +54,11 @@ impl From<hyper::error::Error> for Error {
     fn from(e: hyper::error::Error) -> Error { Error::Hyper(e) }
 }
 
+#[cfg(feature = "unstable")]
+impl From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Error { Error::Reqwest(e) }
+}
+
 impl From<RpcError> for Error {
     fn from(e: RpcError) -> Error { Error::Rpc(e) }
 }
@@ -58,6 +68,8 @@ impl fmt::Display for Error {
         match *self {
             Error::Json(ref e) => write!(f, "JSON decode error: {}", e),
             Error::Hyper(ref e) => write!(f, "Hyper error: {}", e),
+            #[cfg(feature = "unstable")]
+            Error::Reqwest(ref e) => write!(f, "Reqwest error: {}", e),
             Error::Rpc(ref r) => write!(f, "RPC error response: {:?}", r),
             _ => f.write_str(error::Error::description(self))
         }
@@ -69,6 +81,8 @@ impl error::Error for Error {
         match *self {
             Error::Json(_) => "JSON decode error",
             Error::Hyper(_) => "Hyper error",
+            #[cfg(feature = "unstable")]
+            Error::Reqwest(_) => "Reqwest error",
             Error::Rpc(_) => "RPC error response",
             Error::NoErrorOrResult => "Malformed RPC response",
             Error::NonceMismatch => "Nonce of response did not match nonce of request",
@@ -80,6 +94,8 @@ impl error::Error for Error {
         match *self {
             Error::Json(ref e) => Some(e),
             Error::Hyper(ref e) => Some(e),
+            #[cfg(feature = "unstable")]
+            Error::Reqwest(ref e) => Some(e),
             _ => None
         }
     }

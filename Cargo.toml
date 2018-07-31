@@ -19,6 +19,10 @@ serde = "1"
 serde_derive = "1"
 strason = "0.4"
 
+[dependencies.reqwest]
+optional = true
+version = "0.8"
+
 [dependencies.hyper]
 version = "0.9"
 default-features = false
@@ -26,3 +30,7 @@ default-features = false
 [features]
 default = []
 ssl = ["hyper/ssl"]
+unstable = ["reqwest"]
+
+[package.metadata.docs.rs]
+features = ["unstable"]
